@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Btn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">角色名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="RoleName" date-Operator="Contains" placeholder="请输入角色名称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search" id="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-admin" id="useradd" data-type="add">添加</button>
+                <button class="layui-btn layuiadmin-btn-admin" id="addMenu" data-type="addMenu">绑定权限</button>
+            </div>
+
+            <table id="LAY-user-back-manage" lay-filter="LAY-user-back-manage"></table>
+            <script type="text/html" id="barDemo">
+                <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script src="/Scripts/Roles.js"></script>
+}
+@section Css{
+    <link href="/src/layuiadmin/modules/dtree/dtree.css" rel="stylesheet" />
+    <link href="/src/layuiadmin/modules/dtree/font/iconfont.css" rel="stylesheet" />
+}

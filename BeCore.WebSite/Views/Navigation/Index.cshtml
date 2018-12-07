@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form class="layui-form">
+    <div class="layui-fluid">
+        <div class="layui-row">
+            <div class="layui-col-sm4">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <div id="LAY-auth-tree-index"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-sm8">
+                <div class="grid-demo">25%</div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+@section Scripts{
+    <script>
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            authtree: 'authtree',
+            index: 'lib/index' //主入口模块
+            //, treeSelect: 'modules/treeSelect'
+        }).use(['index', 'authtree', 'form'], function () {
+            var $ = layui.jquery;
+            var authtree = layui.authtree;
+            var form = layui.form;
+            var layer = layui.layer;
+            $.ajax({
+                url: '/tree.json',
+                dataType: 'json',
+                success: function (data) {
+                    var trees = data.data.trees;
+                    authtree.render('#LAY-auth-tree-index', trees, {
+                        inputname: 'authids[]',
+                        layfilter: 'lay-check-auth',
+                        autowidth: true,
+                    });
+                }
+
+            });
+
+        })
+    </script>
+}

@@ -1,0 +1,244 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">登录名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="UserName" date-Operator="Contains" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">邮箱</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="Email" date-Operator="Contains" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search" id="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-admin" id="useradd" data-type="add">添加</button>
+            </div>
+
+            <table id="LAY-user-back-manage" lay-filter="LAY-user-back-manage"></table>
+            <script type="text/html" id="IsSuper">
+                {{#  if(d.IsAdmin){ console.log(d);}}
+                <button class="layui-btn layui-btn-xs">超管</button>
+                {{#  } else { }}
+                <button class="layui-btn layui-btn-primary layui-btn-xs">普通用户</button>
+                {{#  } }}
+            </script>
+            <script type="text/html" id="buttonTplz">
+                {{#  if(d.IsDisabled){ console.log(d);}}
+                <button class="layui-btn layui-btn-xs">已审核</button>
+                {{#  } else { }}
+                <button class="layui-btn layui-btn-primary layui-btn-xs">未审核</button>
+                {{#  } }}
+            </script>
+            <script type="text/html" id="table-useradmin-admin" lay-filter="table-useradmin-admin">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                {{#  if(d.role == '超级管理员'){ }}
+                <a class="layui-btn layui-btn-disabled layui-btn-xs"><i class="layui-icon layui-icon-delete"></i>删除</a>
+                {{#  } else { }}
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+                {{#  } }}
+            </script>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'table'], function () {
+            var $ = layui.$
+                , admin = layui.admin
+                , element = layui.element
+                , table = layui.table;
+            var field = '', order = '', Conditions = '', objls;
+            var active = {
+                reload: function () {
+                    var Arr = new Array();
+                    $('.layui-form-item').find('input').each(function () {
+                        var _Model = {};
+                        _Model.Key = $(this).attr('name');
+                        _Model.Value = $(this).val();
+                        _Model.OperatorMethod = $(this).attr('date-operator');
+                        if (_Model.Key != '')
+                            Arr.push(_Model);
+                    });
+                    console.log('Arr:' + typeof (Arr));
+                    Conditions = JSON.stringify(Arr)
+
+                    table.reload('LAY-user-back-manage', { //testTable是表格容器id
+                        initSort: objls //记录初始排序，如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                        , where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                            field: field //排序字段
+                            , order: order //排序方式
+                            , Conditions: Conditions//JSON.stringify(Arr)
+                        }
+                    });
+                },
+                add: function () {
+                    layer.open({
+                        //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                        type: 2,
+                        title: "添加编码",
+                        area: ['36%', '70%'],
+                        content: '/User/Add/'
+                        , btn: ['确定', '取消']
+                        , yes: function (index, layero) {
+                            var iframeWindow = window['layui-layer-iframe' + index]
+                                , submitID = 'LAY-user-front-submit'
+                                , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                                debugger
+                                var field = data.field; //获取提交的字段
+                                console.log(field);
+                                //提交 Ajax 成功后，静态更新表格中的数据
+                                //table.reload('LAY-user-front-submit'); //数据刷新
+                                console.log(field);
+                                $.ajax({
+                                    url: '/user/add',
+                                    type: "post",
+                                    data: field,
+                                    error: function () {
+                                    },
+                                    success: function (data) {
+                                        //console.log(data);
+                                        //BindDatatables(selid);
+                                    }
+                                });
+                                active.reload();
+                                layer.close(index); //关闭弹层
+                            });
+
+                            submit.trigger('click');
+                        }
+                    });
+                }
+            }
+            //管理员管理
+            table.render({
+                elem: '#LAY-user-back-manage'
+                , url: '/User/Data'//'/src/layuiadmin/json/useradmin/mangadmin.js' //模拟接口
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' }
+                    , { field: 'Id', width: 80, title: 'ID', sort: true }
+                    , { field: 'UserName', title: '登录名' }
+                    , { field: 'TrueName', title: '真实姓名' }
+                    , { field: 'Mobile', title: '手机号' }
+                    , { field: 'QQ', title: 'QQ' }
+                    , { field: 'Email', title: '邮箱' }
+                    , { field: 'IsAdmin', title: '是否超管', templet: '#IsSuper' }
+                    , { field: 'AddTime', title: '加入时间', sort: true }
+                    , { field: 'IsDisabled', title: '审核状态', templet: '#buttonTplz', minWidth: 80, align: 'center' }
+                    , { field: 'Remark', title: '备注' }
+                    , { title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-useradmin-admin' }
+                ]]
+                , page: true
+                , limit: 30
+                , height: 'full-220'
+                , text: '对不起，加载出现异常！'
+            });
+            //监听表格排序问题
+            table.on('sort(LAY-user-back-manage)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+                objls = obj;
+                field = obj.field;
+                order = obj.type;
+                //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：
+                table.reload('LAY-user-back-manage', { //testTable是表格容器id
+                    initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                    , where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                        field: field //排序字段
+                        , order: order //排序方式
+                        , Conditions: Conditions//JSON.stringify(Arr)
+                    }
+                });
+            });
+            //监听工具条
+            table.on('tool(LAY-user-back-manage)', function (obj) {
+                var data = obj.data;
+                if (obj.event === 'del') {
+                    var id = obj.data.Id;
+                    layer.confirm('真的删除行么', function (index) {
+                        $.ajax({
+                            url: '/user/Del/' + id,
+                            type: "get",
+                            error: function () {
+                            },
+                            success: function (data) {
+                            }
+                        });
+                        obj.del();
+                        layer.close(index);
+                    });
+                } else if (obj.event === 'edit') {
+                    var tr = $(obj.tr);
+                    var id = obj.data.Id;
+                    layer.open({
+                        type: 2
+                        , title: '编辑用户'
+                        , content: '/user/add/' + id
+                        , maxmin: true
+                        , area: ['36%', '70%']
+                        , btn: ['确定', '取消']
+                        , yes: function (index, layero) {
+                            var iframeWindow = window['layui-layer-iframe' + index]
+                                , submitID = 'LAY-user-front-submit'
+                                , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                            //监听提交
+                            iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                                var field = data.field; //获取提交的字段
+                                //提交 Ajax 成功后，静态更新表格中的数据
+                                $.ajax({
+                                    url: '/user/add',
+                                    type: "post",
+                                    data: field,
+                                    error: function () {
+                                    },
+                                    success: function (data) {
+                                    }
+                                });
+                                active.reload();
+                                table.reload('LAY-user-front-submit'); //数据刷新
+                                layer.close(index); //关闭弹层
+                            });
+
+                            submit.trigger('click');
+                        }
+                        , success: function (layero, index) {
+
+                        }
+                    });
+                }
+            });
+            //按钮监听
+            $('#LAY-user-back-search').on('click', function () {
+                active['reload'] ? active['reload'].call(this) : '';
+            });
+
+            $('#useradd').on('click', function () {
+                active['add'] ? active['add'].call(this) : '';
+            });
+        });
+    </script>
+}

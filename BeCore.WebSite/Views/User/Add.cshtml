@@ -1,0 +1,107 @@
+﻿@model BeCore.Core.Model.Sys_Users
+@{
+    ViewData["Title"] = "Add";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">登录名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="UserName" value="@Model.UserName" lay-verify="required" placeholder="请输入登录名" autocomplete="off" class="layui-input">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <input type="hidden" name="Deleted" value="@Model.Deleted" />
+            <input type="hidden" name="CreateTime" value="@Model.CreateTime" />
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户密码</label>
+        <div class="layui-input-inline">
+            <input type="password" name="Password" value="@Model.Password" lay-verify="required" placeholder="请输入用户密码" autocomplete="off" class="layui-input">
+            <input type="hidden" name="PassSalt" value="@Model.PassSalt" />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">Email</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Email" value="@Model.Email" placeholder="请输入Email" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item" lay-filter="sex">
+        <label class="layui-form-label">是否管理员</label>
+        <div class="layui-input-block">
+            @if (Model.IsAdmin)
+            {
+                <input type="radio" name="IsAdmin" value="true" title="是" checked>
+                <input type="radio" name="IsAdmin" value="false" title="否">
+            }
+            else
+            {
+                <input type="radio" name="IsAdmin" value="true" title="是">
+                <input type="radio" name="IsAdmin" value="false" title="否" checked>
+            }
+        </div>
+    </div>
+
+    <div class="layui-form-item" lay-filter="sex">
+        <label class="layui-form-label">是否启用</label>
+        <div class="layui-input-block">
+            @if (Model.IsDisabled)
+            {
+                <input type="radio" name="IsDisabled" value="true" title="是" checked>
+                <input type="radio" name="IsDisabled" value="false" title="否">
+            }
+            else
+            {
+                <input type="radio" name="IsDisabled" value="true" title="是">
+                <input type="radio" name="IsDisabled" value="false" title="否" checked>
+            }
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">真实姓名</label>
+        <div class="layui-input-inline">
+            <input type="text" name="TrueName" value="@Model.TrueName" placeholder="请输入Email" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机号</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Mobile" value="@Model.Mobile" placeholder="请输入Email" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">QQ</label>
+        <div class="layui-input-inline">
+            <input type="text" name="QQ" value="@Model.QQ" placeholder="请输入Email" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Remark" value="@Model.Remark" lay-verify="required" placeholder="请输入备注" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-front-submit" value="确认">
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index', 'form', 'upload'], function () {
+            var $ = layui.$
+                , form = layui.form
+                , upload = layui.upload;
+        });
+    </script>
+}

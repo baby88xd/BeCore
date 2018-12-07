@@ -1,0 +1,253 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div class="layui-fluid" id="LAY-component-grid-all">
+
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">Code</div>
+                <div class="layui-card-body">
+                    <ul id="demo1"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm7 layui-col-md9">
+            <div class="layui-card">
+                <div class="layui-card-header">数据</div>
+                <div class="layui-card-body">
+                    <div class="grid-demo">
+                        <table class="layui-hide" id="Datatables" lay-filter="Datatables"></table>
+
+                        <script type="text/html" id="toolbarDemo">
+                            <div class="layui-btn-container">
+                                <button id="AddCode" name="AddCode" class="layui-btn layui-btn-sm" onclick="AddCode(0)">添加编码</button>
+                                <button id="AddCode" name="AddCode" class="layui-btn layui-btn-sm" onclick="AddCode(1)">修改编码</button>
+                                <button id="AddInfo" name="AddInfo" class="layui-btn layui-btn-sm" onclick="AddInfo(0)">添加信息</button>
+                            </div>
+
+                        </script>
+
+                        <script type="text/html" id="barDemo">
+                            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 选择角色的按钮 -->
+@section Scripts{
+    <script>
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+        }).use(['index'], function () {
+            var $ = layui.$
+                , admin = layui.admin
+                , element = layui.element;
+
+            element.render('nav', 'component-nav');
+            element.render('nav', 'component-nav-active');
+
+            element.on('nav(component-nav-active)', function (elem) {
+                layer.msg(elem.text());
+            });
+        });
+        var selid = 0;
+        layui.use(['tree', 'layer', 'useradmin', 'index', 'form', 'table'], function () {
+            var layer = layui.layer
+                , $ = layui.jquery;
+            var treeData;
+            function getTreeData() {
+                $.ajax({
+                    url: '/code/TreeData',
+                    type: "get",
+                    error: function () {
+                    },
+                    success: function (data) {
+                        treeData = JSON.stringify(data);
+                        initMenuTree();
+                    }
+                });
+            }
+
+
+
+            function initMenuTree() {
+                treeIns = layui.tree({
+                    elem: '#demo1' //指定元素
+                    , check: 'check' //勾选风格
+                    , checkboxName: 'name'//复选框的name属性值
+                    , checkboxStyle: ""//设置复选框的样式，必须为字符串，css样式怎么写就怎么写
+                    , skin: 'as' //设定皮肤
+                    , drag: true//点击每一项时是否生成提示信息
+                    , click: function (item) { //点击节点回调
+                        //layer.msg('当前节名称：' + item.name + '<br>全部参数：' + JSON.stringify(item));
+                        //console.log(item);
+                        selid = item.id;
+                        BindDatatables(item.id);
+                    }
+                    , nodes: eval("(" + treeData + ")")// [{ "name": "铁运", "id": "ApplicationId828", "alias": "铁运", "children": [{ "name": "[5001]测试用", "id": "1", "alias": "[5001]测试用", "children": null }] }]// eval("(" + getTreeData() + ")")//getTreeData()
+                });
+                return treeIns;
+
+            }
+            getTreeData();
+
+        });
+
+        //选择角色弹层
+        function AddCode(id) {
+            if (id != 0)
+                id = selid;
+            if (id.toString().indexOf("Appli") > -1) {
+                layer.msg('该节点不允许修改');
+            } else {
+
+                layer.open({
+                    //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                    type: 2,
+                    title: "添加编码",
+                    area: ['50%', '50%'],
+                    content: '/Code/Add/' + id
+                    , btn: ['确定', '取消']
+                    , yes: function (index, layero) {
+                        var iframeWindow = window['layui-layer-iframe' + index]
+                            , submitID = 'LAY-user-front-submit'
+                            , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                        //监听提交
+                        iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                            debugger
+                            var field = data.field; //获取提交的字段
+                            console.log(field);
+                            //提交 Ajax 成功后，静态更新表格中的数据
+                            //$.ajax({});
+                            //table.reload('LAY-user-front-submit'); //数据刷新
+                            $.ajax({
+                                url: '/code/add',
+                                type: "post",
+                                data: field,
+                                error: function () {
+                                },
+                                success: function (data) {
+                                    //console.log(data);
+                                    //BindDatatables(selid);
+                                    initMenuTree();
+                                }
+                            });
+                            layer.close(index); //关闭弹层
+                        });
+
+                        submit.trigger('click');
+                    }
+                });
+            }
+            //form.render()
+        }
+
+        function AddInfo(id) {
+            layer.open({
+                //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                type: 2,
+                title: "添加编码",
+                area: ['50%', '50%'],
+                content: '/Code/Addinfo/' + id + '/?parentid=' + selid
+                , btn: ['确定', '取消']
+                , yes: function (index, layero) {
+                    var iframeWindow = window['layui-layer-iframe' + index]
+                        , submitID = 'LAY-user-front-submit'
+                        , submit = layero.find('iframe').contents().find('#' + submitID);
+
+                    //监听提交
+                    iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                        var field = data.field; //获取提交的字段
+                        console.log(field);
+                        //提交 Ajax 成功后，静态更新表格中的数据
+                        //$.ajax({});
+                        //table.reload('LAY-user-front-submit'); //数据刷新
+                        $.ajax({
+                            url: '/code/addinfo',
+                            type: "post",
+                            data: field,
+                            error: function () {
+                            },
+                            success: function (data) {
+                                //console.log(data);
+                                BindDatatables(selid);
+                            }
+                        });
+                        layer.close(index); //关闭弹层
+                    });
+
+                    submit.trigger('click');
+                }
+            });
+        }
+
+
+        function DelInfo(id) {
+            $.ajax({
+                url: '/code/DelInfo/' + id,
+                //data: field,
+                error: function () {
+                },
+                success: function (data) {
+                    //console.log(data);
+                    BindDatatables(selid);
+                }
+            });
+
+        }
+    </script>
+
+
+    <script>
+
+        function BindDatatables(id) {
+
+            layui.use(['index', 'table'], function () {
+                var table = layui.table;
+
+                var tableIns = table.render({
+                    elem: '#Datatables'
+                    , url: '/code/GridData/' + id
+                    , toolbar: '#toolbarDemo'
+                    , cols: [[
+                        { field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true }
+                        , { field: 'languageCode', title: '语种Code', width: 120 }
+                        , { field: 'languageRemark', title: '语言的描述' }
+                        , { field: 'msgInfo', title: '提示信息' }
+                        , { title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#barDemo' }
+                    ]]
+                    , page: false
+                });
+
+                //监听行工具事件
+                table.on('tool(Datatables)', function (obj) {
+                    var data = obj.data;
+                    if (obj.event === 'del') {
+                        layer.confirm('真的删除行么', function (index) {
+                            DelInfo(data.id);
+                            layer.close(index);
+                        });
+                    } else if (obj.event === 'edit') {
+                        AddInfo(data.id);
+                    }
+                });
+
+            });
+
+
+        }
+
+    </script>
+
+}

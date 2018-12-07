@@ -1,0 +1,295 @@
+﻿@{
+    ViewData["Title"] = "List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="height: 100%">
+    <div class="dHead">
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="window.location.href='index.html';">刷新</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="reload()">reload</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="query()">query</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="add(null);">新增一行</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="openorclose();">隐藏或打开香蕉节点</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="getCheckData();">获取选中行数据</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="getCheckLength();">获取选中数目</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="print();">打印缓存对象</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="openAll();">展开或折叠全部</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="radioStatus();">获取单选数据</a>
+        <a class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="test();">test</a>
+    </div>
+</div>
+
+<div class="dBody">
+    <table class="layui-hidden" id="treeTable" lay-filter="treeTable"></table>
+</div>
+
+@section Scripts{
+<script>
+    var editObj = null, ptable = null, treeGrid = null, tableId = 'treeTable', layer = null;
+    layui.config({
+        base: '/src/layuiadmin/' //静态资源所在路径
+    }).extend({
+        dtree: '{/}/src/layuiadmin/modules/dtree/dtree'//定义该组件模块名
+        , treeGrid: 'treeGrid'
+        , index: 'lib/index' //主入口模块
+        //, treeSelect: 'modules/treeSelect'
+    }).use(['index', 'treeGrid', 'form', 'dtree'], function () {
+        var $ = layui.jquery,
+            dtree = layui.dtree,
+            treeGrid = layui.treeGrid,//很重要
+            layer = layui.layer,
+            ptable = treeGrid.render({
+                id: tableId
+                , elem: '#' + tableId
+                , url: '/Navigation/Data'
+                , cellMinWidth: 100
+                , idField: 'Id'//必須字段
+                , treeId: 'Id'//树形id字段名称
+                , treeUpId: 'ParentID'//树形父id字段名称
+                , treeShowName: 'NavTitle'//以树形式显示的字段
+                , heightRemove: [".dHead", 10]//不计算的高度,表格设定的是固定高度，此项不生效
+                , height: '100%'
+                , isFilter: false
+                , iconOpen: true//是否显示图标【默认显示】
+                , isOpenDefault: true//节点默认是展开还是折叠【默认展开】
+                , loading: true
+                , method: 'get'
+                , isPage: false
+                , cols: [[
+                    //{ type: 'numbers' },
+                    { type: 'radio' }
+                    , { type: 'checkbox', sort: true }
+                    , { field: 'NavTitle', width: 300, title: '菜单名称', edit: 'text', sort: true }
+                    , { field: 'Id', width: 100, title: 'id', sort: true }
+                    , { field: 'ParentID', title: '父节点ID', sort: true }
+                    , { field: 'Linkurl', title: '链接地址', sort: true }
+                    , { field: 'NavTag', title: '按钮标志', sort: true }
+                    , {
+                        width: 220, title: '操作', align: 'center'/*toolbar: '#barDemo'*/
+                        , templet: function (d) {
+                            var html = '';
+                            var addBtn = '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="add">添加</a>';
+                            var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
+                            var EditeBtn = '<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="Edite">修改</a>';
+                            var BtnManager = '<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="addBtn">分配按钮</a>';
+                            return addBtn + delBtn + EditeBtn;
+                        }
+                    }
+                ]]
+                , parseData: function (res) {//数据加载后回调
+                    return res;
+                }
+                , onClickRow: function (index, o) {
+                    //console.log(index, o, "单击！");
+                }
+                , onDblClickRow: function (index, o) {
+                    //console.log(index, o, "双击");
+                }
+
+            });
+
+        treeGrid.on('tool(' + tableId + ')', function (obj) {
+            debugger
+            if (obj.event == 'del') {//删除行
+                del(obj);
+            } else if (obj.event == "add") {//添加行
+                add(obj);
+            } else if (obj.event == 'Edite') {
+                add(obj, true);
+            } else if (obj.event == 'addBtn') {
+                debugger
+                layer.open({
+                    type: 1, //type:0 也行
+                    title: "选择按钮",
+                    area: ["400px", "80%"],
+                    content: '<ul id="openTree3" class="dtree" data-id="0"></ul>',
+                    btn: ['确认选择'],
+                    success: function (layero, index) {
+                        var DTree = dtree.render({
+                            obj: $(layero).find("#openTree3"),
+                            url: "/Data/Para",
+                            checkbar: true // 开启复选框
+                        });
+                    },
+                    yes: function (index, layero) {
+                        var flag = true;
+                        var params = dtree.getCheckbarNodesParam("openTree3"); // 获取选中值
+                        if (params.length == 0) {
+                            layer.msg("请至少选择一个节点", { icon: 2 });
+                            flag = false;
+                        }
+
+                        var ids = [], names = [];
+                        for (var key in params) {
+                            var param = params[key];
+                            ids.push(param.nodeId);
+                            names.push(param.context);
+                        }
+
+
+                        var selid = $('#methodid').val();
+
+                        layer.close(index); //关闭弹层
+                        if (flag) {
+                            $.ajax({
+                                url: '/Bind/Save',
+                                type: "post",
+                                data: { id: selid, attrid: ids.join(",") },
+                                error: function () {
+                                },
+                                success: function (data) {
+                                    table.reload('Datatables', { //testTable是表格容器id
+                                        //initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                                        where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                                            //field: field //排序字段
+                                            //, order: order //排序方式
+                                            //, Conditions: Conditions//JSON.stringify(Arr)
+                                            id: selid
+                                        }
+                                    });
+                                }
+                            });
+                            layer.close(index);
+                        }
+                    }
+                });
+            }
+        });
+
+
+    });
+    function del(obj) {
+        layer.confirm("你确定删除数据吗？如果存在下级节点则一并删除，此操作不能撤销！", { icon: 3, title: '提示' },
+            function (index) {//确定回调
+                obj.del();
+                layer.close(index);
+            }, function (index) {//取消回调
+                layer.close(index);
+            }
+        );
+    }
+
+
+    var i = 1000000;
+    //添加
+    function add(pObj, IsEdite) {
+        //debugger
+        //console.log(pObj);
+        var url = '/Navigation/add/';
+        if (IsEdite) {
+            url = url + pObj.data.Id;
+        }
+        layer.open({
+            type: 2,
+            title: "添加菜单",
+            area: ['50%', '50%'],
+            content: url//"/Navigation/add"
+            , btn: ['确定', '取消']
+            , yes: function (index, layero) {
+                var iframeWindow = window['layui-layer-iframe' + index]
+                    , submitID = 'LAY-user-front-submit'
+                    , submit = layero.find('iframe').contents().find('#' + submitID);
+                //iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+
+                //});
+                //监听提交
+                iframeWindow.layui.form.on('submit(' + submitID + ')', function (data) {
+                    //debugger
+                    var field = data.field; //获取提交的字段
+                    //console.log(field);
+                    //提交 Ajax 成功后，静态更新表格中的数据
+                    //$.ajax({});
+                    //table.reload('LAY-user-front-submit'); //数据刷新
+                    $.ajax({
+                        url: '/Navigation/add',
+                        type: "post",
+                        data: field,
+                        error: function () {
+                        },
+                        success: function (data) {
+                            //console.log(data);
+                            //BindDatatables(selid);
+                            //initMenuTree();
+                        }
+                    });
+                    layer.close(index); //关闭弹层
+                });
+
+                submit.trigger('click');
+            }
+        })
+        //var pdata = pObj ? pObj.data : null;
+        //var param = {};
+        //param.name = '水果' + Math.random();
+        //param.id = ++i;
+        //param.pId = pdata ? pdata.id : null;
+        //treeGrid.addRow(tableId, pdata ? pdata[treeGrid.config.indexName] + 1 : 0, param);
+    }
+
+
+
+    function print() {
+        console.log(treeGrid.cache[tableId]);
+        var loadIndex = layer.msg("对象已打印，按F12，在控制台查看！", {
+            time: 3000
+            , offset: 'auto'//顶部
+            , shade: 0
+        });
+    }
+
+    function openorclose() {
+        var map = treeGrid.getDataMap(tableId);
+        var o = map['102'];
+        treeGrid.treeNodeOpen(tableId, o, !o[treeGrid.config.cols.isOpen]);
+    }
+
+    function openAll() {
+        var treedata = treeGrid.getDataTreeList(tableId);
+        treeGrid.treeOpenAll(tableId, !treedata[0][treeGrid.config.cols.isOpen]);
+    }
+
+    function getCheckData() {
+        var checkStatus = treeGrid.checkStatus(tableId)
+            , data = checkStatus.data;
+        layer.alert(JSON.stringify(data));
+    }
+
+    function radioStatus() {
+        var data = treeGrid.radioStatus(tableId)
+        layer.alert(JSON.stringify(data));
+    }
+
+    function getCheckLength() {
+        var checkStatus = treeGrid.checkStatus(tableId)
+            , data = checkStatus.data;
+        layer.msg('选中了：' + data.length + ' 个');
+    }
+
+    function reload() {
+        treeGrid.reload(tableId, {
+            page: {
+                curr: 1
+            }
+        });
+    }
+
+    function query() {
+        treeGrid.query(tableId, {
+            where: {
+                name: 'sdfsdfsdf'
+            }
+        });
+    }
+
+    function test() {
+        console.log(treeGrid.cache[tableId], treeGrid.getClass(tableId));
+
+
+        /*var map=treeGrid.getDataMap(tableId);
+        var o= map['102'];
+        o.name="更新";
+        treeGrid.updateRow(tableId,o);*/
+    }
+
+</script>
+}

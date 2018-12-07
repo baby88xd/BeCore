@@ -1,0 +1,20 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="layui-card-body">
+    <div style="padding-bottom: 10px;">
+        <button class="layui-btn layuiadmin-btn-admin" id="AddBtn" data-type="add">添加</button>
+    </div>
+    <table id="LAY-Table" lay-filter="LAY-Table"></table>
+    <script type="text/html" id="table-useradmin-admin" lay-filter="table-toolbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+    </script>
+</div>
+
+
+@section Scripts{
+    <script src="/Scripts/Buttons.js" type="text/javascript"></script>
+}

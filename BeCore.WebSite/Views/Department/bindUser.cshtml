@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "bindUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<table class="layui-hide" id="UserTable" lay-filter="UserTable"></table>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckData" id="GetSel" style="display:block">获取选中行数据</button>
+        <input type="hidden" id="selids" name="selids" />
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+
+@section Scripts{
+    <script>
+        var table;
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).use(['table'], function () {
+            $ == layui.$;
+            table = layui.table;
+            table.render({
+                elem: '#UserTable'
+                , url: '/Department/Data'
+                , toolbar: '#toolbarDemo'
+                , title: '用户数据表'
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' }
+                    , { field: 'Id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true }
+                    , { field: 'UserName', title: '用户名', width: 120 }
+                    , { field: 'Email', title: '用户邮箱' }
+                    , { field: 'Mobile', title: '手机' }
+                    , { field: 'QQ', title: 'QQ' }
+                    , { fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150 }
+                ]]
+                , page: true
+            });
+            //console.log(table);
+            //头工具栏事件
+            table.on('toolbar(UserTable)', function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch (obj.event) {
+                    case 'getCheckData':
+                        var Selids = $.map(checkStatus.data, function (v) { return v.Id }).join(',');
+                        //layer.alert(JSON.stringify(data));
+                        $('#selids').val(Selids);
+                        break;
+                };
+            });
+        });
+
+
+    </script>
+}

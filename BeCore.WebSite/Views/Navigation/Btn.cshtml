@@ -1,0 +1,216 @@
+﻿@{
+    ViewData["Title"] = "Btn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="layui-fluid" id="LAY-component-grid-all">
+    <div class="layui-row layui-col-space10">
+        <div class="layui-col-xs6 layui-col-sm5 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">菜单</div>
+                <div class="layui-card-body">
+                    <ul id="MethodTree"></ul>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-xs6 layui-col-sm7 layui-col-md9">
+            <div class="layui-card">
+                <div class="layui-card-header">按钮</div>
+
+                <div class="layui-card-body">
+                    <div style="padding-bottom: 10px;">
+
+                        <button class="layui-btn layui-btn-sm layui-btn-normal"><i class="layui-icon"></i> 删除</button>
+                        <button class="layui-btn layui-btn-sm  layui-btn-primary">原始按钮</button>
+                        <button class="layui-btn layui-btn-sm  layui-btn-normal" id="openTree3_btn">分配按钮</button>
+                        <button class="layui-btn layui-btn-sm  layui-btn-warm">暖色按钮</button>
+                        <button class="layui-btn layui-btn-sm  layui-btn-danger">警告按钮</button>
+                        <button class="layui-btn layui-btn-sm ">默认按钮</button>
+                        @*<button class="layui-btn layuiadmin-btn-admin" id="openTree3_btn" data-type="add">选择参数</button>*@
+                        <input type="hidden" name="MenuId" id="MenuId" />
+                    </div>
+                    <div class="grid-demo">
+                        <table class="layui-hide" id="Datatables" lay-filter="Datatables"></table>
+
+                        <script type="text/html" id="toolbarDemo">
+                            <div class="layui-btn-container">
+                                @*<button id="AddCode" name="AddCode" class="layui-btn layui-btn-sm" onclick="AddCode(0)">添加编码</button>
+                                    <button id="AddCode" name="AddCode" class="layui-btn layui-btn-sm" onclick="AddCode(1)">修改编码</button>
+                                    <button id="AddInfo" name="AddInfo" class="layui-btn layui-btn-sm" onclick="AddInfo(0)">添加信息</button>*@
+                            </div>
+
+                        </script>
+
+                        <script type="text/html" id="barDemo">
+                            <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Css{
+    <link href="/src/layuiadmin/modules/dtree/dtree.css" rel="stylesheet" />
+    <link href="/src/layuiadmin/modules/dtree/font/iconfont.css" rel="stylesheet" />
+}
+@section Scripts{
+    <script>
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            dtree: '{/}/src/layuiadmin/modules/dtree/dtree'//定义该组件模块名
+            , treeGrid: 'treeGrid'
+            , index: 'lib/index' //主入口模块
+            //, treeSelect: 'modules/treeSelect'
+        }).use(['index', 'treeGrid', 'form', 'dtree', 'table'], function () {
+            var $ = layui.jquery,
+                dtree = layui.dtree,
+                treeGrid = layui.treeGrid,//很重要
+                table = layui.table,
+                layer = layui.layer;
+            //写一个按钮树
+            dtree.render({
+                elem: "#MethodTree",  //绑定元素
+                url: "/Navigation/GetMenuTree"  //异步接口
+            });
+            //树的出发事件
+            dtree.on("node('MethodTree')", function (param) {
+
+                $('#MenuId').val(param.nodeId);
+                TableReLoad();
+            });
+
+            $("#openTree3_btn").click(function () {
+                if ($('#MenuId').val() == '') {
+                    layer.msg('请选择您要绑定的方法');
+                } else {
+                    layer.open({
+                        type: 1, //type:0 也行
+                        title: "选择树",
+                        area: ["400px", "80%"],
+                        content: '<ul id="openTree3" class="dtree" data-id="0"></ul>',
+                        btn: ['确认选择'],
+                        success: function (layero, index) {
+                            var DTree = dtree.render({
+                                obj: $(layero).find("#openTree3"),
+                                url: "/Navigation/GetBtnTree",
+                                checkbar: true // 开启复选框
+                            });
+                        },
+                        yes: function (index, layero) {
+                            var flag = true;
+                            var params = dtree.getCheckbarNodesParam("openTree3"); // 获取选中值
+                            if (params.length == 0) {
+                                layer.msg("请至少选择一个节点", { icon: 2 });
+                                flag = false;
+                            }
+                            if (flag) {
+                                var ids = [], names = [];
+                                for (var key in params) {
+                                    var param = params[key];
+                                    ids.push(param.nodeId);
+                                    names.push(param.context);
+                                }
+
+
+                                var selid = $('#MenuId').val();
+                                $.ajax({
+                                    url: '/Navigation/SaveBtn',
+                                    type: "post",
+                                    data: { menuid: selid, btnids: ids.join(",") },
+                                    error: function () {
+                                    },
+                                    success: function (data) {
+                                        layer.close(index);
+                                    }
+                                });
+
+                                //layer.close(index); //关闭弹层
+                            }
+                        }
+                    });
+                }
+
+            });
+
+            //基础参数
+            var field = '', order = '', Conditions = '', objls;
+
+            var tableIns = table.render({
+                elem: '#Datatables'
+                , url: '/Navigation/GetBtn/'
+                //, toolbar: '#toolbarDemo'
+                , cols: [[
+                    { field: 'Id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true }
+                    , { field: 'ButtonText', title: '按钮名称', width: 120 }
+                    , { field: 'ButtonTag', title: '按钮code' }
+                    //, { field: 'msgInfo', title: '提示信息' }
+                    , {
+                        width: 200, title: '操作', align: 'center'/*toolbar: '#barDemo'*/
+                        , templet: function (d) {
+                            var html = '';
+                            var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
+                            return delBtn;
+                        }
+                    }
+                ]]
+                , height: 'full-220'
+                , text: '对不起，加载出现异常！'
+                , where: {
+
+                }
+            });
+
+            table.on('sort(Datatables)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+                objls = obj;
+                field = obj.field;
+                order = obj.type;
+                //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：
+                TableReLoad();
+            });
+
+            table.on('sort(Datatables)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+                objls = obj;
+                field = obj.field;
+                order = obj.type;
+                //有些时候，你可能需要根据当前排序的字段，重新向服务端发送请求，从而实现服务端排序，如：
+                TableReLoad();
+            });
+
+            function TableReLoad() {
+
+                var Arr = new Array();
+                $('.layui-form-item').find('input').each(function () {
+                    var _Model = {};
+                    _Model.Key = $(this).attr('name');
+                    _Model.Value = $(this).val();
+                    _Model.OperatorMethod = $(this).attr('date-operator');
+                    if (_Model.Key != '')
+                        Arr.push(_Model);
+
+                });
+                //这里添加默认查询条件
+                var _First = {};
+                _First.Key = 'Navids';
+                _First.Value = $('#MenuId').val();
+                _First.OperatorMethod = 'eq';
+                Arr.push(_First);
+
+                Conditions = JSON.stringify(Arr)
+
+                table.reload('Datatables', { //testTable是表格容器id
+                    initSort: objls //记录初始排序，如果不设的话，将无法标记表头的排序状态。 layui 2.1.1 新增参数
+                    , where: { //请求参数（注意：这里面的参数可任意定义，并非下面固定的格式）
+                        field: field //排序字段
+                        , order: order //排序方式
+                        , Conditions: Conditions//JSON.stringify(Arr)
+                    }
+                });
+            }
+
+        });
+    </script>
+}

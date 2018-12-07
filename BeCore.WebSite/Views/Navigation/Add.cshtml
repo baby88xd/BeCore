@@ -1,0 +1,118 @@
+﻿
+@{
+    ViewData["Title"] = "Add";
+    Layout = "~/Views/Shared/_PartialLayout.cshtml";
+}
+@model BeCore.Core.Model.Sys_Navigations
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单名称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="NavTitle" value="@Model.NavTitle" lay-verify="required" placeholder="请输入部门名称" autocomplete="off" class="layui-input">
+            <input type="hidden" name="Id" value="@Model.Id" />
+            <input type="hidden" name="Deleted" value="@Model.Deleted" />
+            <input type="hidden" name="CreateTime" value="@Model.CreateTime" />
+            <input type="hidden" id="ParentID" name="ParentID" lay-filter="ParentID" value="@Model.ParentID" />
+
+
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">上级菜单</label>
+        <div class="layui-input-inline">
+            <input type="text" id="ParentIdtree" lay-filter="ParentIdtree" class="layui-input" />
+
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">链接地址</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Linkurl" value="@Model.Linkurl" placeholder="请输入链接地址" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">按钮标志</label>
+        <div class="layui-input-inline">
+            <input type="text" name="NavTag" value="@Model.NavTag" placeholder="请输入按钮标志" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-inline">
+            <input type="text" name="Sortnum" value="@Model.Sortnum" placeholder="排序越大越靠前" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-front-submit" value="确认">
+    </div>
+</div>
+
+
+@section Scripts{
+    <script>
+
+        layui.config({
+            base: '/src/layuiadmin/' //静态资源所在路径
+        }).extend({
+            index: 'lib/index' //主入口模块
+            //, treeSelect: 'modules/treeSelect'
+        }).use(['index', 'treeSelect', 'form', 'upload'], function () {
+            var $ = layui.$
+                , form = layui.form
+                , upload = layui.upload;
+            var treeSelect = layui.treeSelect;
+            var id = $('#ParentID').val();
+            treeSelect.render({
+                // 选择器
+                elem: '#ParentIdtree',
+                // 数据
+                //data: '/data/data3.json',
+                data: '/Navigation/NavTree/',//treeinput
+                //data: '/Department/treeinput',//treeinput
+                //data: '/Department/treeinput',//treeinput
+                // 异步加载方式：get/post，默认get
+                type: 'get',
+                // 占位符
+                placeholder: '修改默认提示信息',
+                // 是否开启搜索功能：true/false，默认false
+                search: true,
+                // 点击回调
+                click: function (d) {
+                    $('#ParentID').val(d.current.id);
+                    //console.log('click:');
+                    //console.log(d);
+                    //console.log('id:');
+                    //console.log(d.current.id);
+                },
+                // 加载完成后的回调函数
+                success: function (d) {
+                    //debugger
+                    var selVal = $('#ParentID').val();
+                    //console.log('selVal');
+                    //console.log(selVal);
+                    //if (selVal != undefined && selVal != null) {
+                    //treeSelect.checkNode('treeInput', 0);
+                    treeSelect.checkNode('ParentIdtree', selVal);
+                    //}
+                    //console.log('success');
+
+                    //console.log(d);
+                    //                选中节点，根据id筛选
+                    //                treeSelect.checkNode('tree', 3);
+
+                    //                获取zTree对象，可以调用zTree方法
+                    //                var treeObj = treeSelect.zTree('tree');
+                    //                console.log(treeObj);
+
+                    //                刷新树结构
+                    //                treeSelect.refresh();
+                }
+            });
+        });
+    </script>
+}
