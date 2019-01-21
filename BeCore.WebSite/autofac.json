@@ -1,0 +1,85 @@
+﻿{
+  "components": [
+    {
+      "type": "BaseCore.Infrastructure.Repositories.BussCodeInfoRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.IBussCodeInfoRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.BussCodeRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.IBussCodeRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_UsersCodeRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_UsersRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_DepartmentsRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_DepartmentsRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_ButtonsRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_ButtonsRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_NavigationsRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_NavigationsRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_RoleNavBtnsRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_RoleNavBtnsRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_NavButtonsRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_NavButtonsRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    },
+    {
+      "type": "BaseCore.Infrastructure.Repositories.Sys_RolesRepository, BaseCore.Infrastructure",
+      "services": [
+        {
+          "type": "BeCore.Core.Interfaces.ISys_RolesRepository, BeCore.Core"
+        }
+      ],
+      "injectProperties": true
+    }
+  ]
+}

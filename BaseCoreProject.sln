@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "9.Others", "9.Others", "{53
 		fly-3.0.zip = fly-3.0.zip
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeCore.IdentityServer", "BeCore.IdentityServer\BeCore.IdentityServer.csproj", "{23A5708E-D07B-4CED-8290-80C155E75F14}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{A97753D6-C523-4F58-B00C-BBF76DC16EED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A97753D6-C523-4F58-B00C-BBF76DC16EED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A97753D6-C523-4F58-B00C-BBF76DC16EED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A5708E-D07B-4CED-8290-80C155E75F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A5708E-D07B-4CED-8290-80C155E75F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A5708E-D07B-4CED-8290-80C155E75F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A5708E-D07B-4CED-8290-80C155E75F14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{8C736ABC-5D1E-4425-B551-534861464995} = {2CA0CF74-FDEE-4B57-8999-C65CF9600926}
 		{5117412A-7AA7-4FB5-A42A-243521F9DF5C} = {2CA0CF74-FDEE-4B57-8999-C65CF9600926}
 		{A97753D6-C523-4F58-B00C-BBF76DC16EED} = {7A4A1D9D-19CF-443E-9448-2FD1D98C32AA}
+		{23A5708E-D07B-4CED-8290-80C155E75F14} = {0A818D07-D900-4216-9100-A0603411ACA9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {800D9955-9E05-4240-A29D-F8C4C7EC059C}
