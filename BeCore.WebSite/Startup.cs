@@ -65,7 +65,7 @@ namespace BeCore.WebSite
 
             IConfigurationBuilder config = new ConfigurationBuilder();
             config.AddJsonFile("autofac.json");
-
+            //.AddJsonFile($"Test.json", optional: true, reloadOnChange: true)
             var module = new ConfigurationModule(config.Build());
             //var containerBuilder = new ContainerBuilder();
             builder.RegisterModule(module);
