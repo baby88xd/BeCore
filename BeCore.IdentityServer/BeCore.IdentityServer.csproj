@@ -13,4 +13,10 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BaseCore.Infrastructure\BaseCore.Infrastructure.csproj" />
+    <ProjectReference Include="..\BaseCore.Utility\BaseCore.Utility.csproj" />
+    <ProjectReference Include="..\BeCore.Core\BeCore.Core.csproj" />
+  </ItemGroup>
+
 </Project>

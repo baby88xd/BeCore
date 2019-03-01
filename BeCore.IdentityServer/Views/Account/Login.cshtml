@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+@using BeCore.Core;
+@model LoginViewModel;
+
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["returnUrl"]">
+                <h4>Use a local account to log in.</h4>
+                <hr />
+
+                @*统一显示错误信息*@
+                <div class="text-danger" asp-validation-summary="All"></div>
+
+                <div class="form-group">
+                    <label asp-for="UserName"></label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password"></label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-default">Log in</button>
+                </div>
+
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts
+    {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BaseCore.Infrastructure.Repositories;
+using BeCore.Core.Interfaces;
 using BeCore.IdentityServer.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +36,10 @@ namespace BeCore.IdentityServer
                 .AddInMemoryApiResources(OuathSetting.ApiResources);
             //.AddProfileService<CustomProfileService>()
             //.AddResourceOwnerValidator<CustomResourceOwnerPasswordValidator>()
+            #endregion
+
+            #region 配置依赖注入
+            services.AddScoped<ISys_UsersRepository, Sys_UsersCodeRepository>();
             #endregion
 
             #region 添加mvc管道  以及json 配置

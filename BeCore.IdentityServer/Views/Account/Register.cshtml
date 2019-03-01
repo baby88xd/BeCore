@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Register";
+}
+
+@using BeCore.Core;
+@model RegisterViewModel;
+
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        @* 这里将asp-route-returnUrl="@ViewData["returnUrl"]，就可以在进行register的post请求的时候接收到returnUrl *@
+        <form method="post" asp-route-returnUrl="@ViewData["returnUrl"]">
+            <h4>Create a new account.</h4>
+            <hr />
+
+            @*统一显示错误信息*@
+            <div class="text-danger" asp-validation-summary="All"></div>
+
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmedPassword"></label>
+                <input asp-for="ConfirmedPassword" class="form-control" />
+                <span asp-validation-for="ConfirmedPassword" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-default">Register</button>
+        </form>
+    </div>
+</div>

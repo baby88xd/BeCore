@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BeCore.IdentityServer</title>
+    <title>@ViewData["Title"] - MvcCookieAuthSample</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -26,7 +26,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">BeCore.IdentityServer</a>
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">MvcCookieAuthSample</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
@@ -34,6 +34,30 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                 </ul>
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-action="Logout" asp-controller="Account" method="post">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a title="Welcome" asp-controller="Admin" asp-action="Index">@User.Identity.Name</a>
+                            </li>
+                            <li>
+                                <button type="submit" class="btn btn-link navbar-btn navbar-link">Log out</button>
+                            </li>
+                        </ul>
+                    </form>
+
+                }
+                else
+                {
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
+                        <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+                    </ul>
+                }
+
+
             </div>
         </div>
     </nav>
@@ -41,7 +65,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; 2018 - BeCore.IdentityServer</p>
+            <p>&copy; 2018 - MvcCookieAuthSample</p>
         </footer>
     </div>
 
