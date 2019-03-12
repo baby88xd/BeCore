@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BaseCore.Infrastructure.Data;
 using BaseCore.Infrastructure.Repositories;
 using BeCore.Core.Interfaces;
 using BeCore.IdentityServer.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
@@ -25,6 +27,11 @@ namespace BeCore.IdentityServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region 数据库注入到管道中
+            var connection = Configuration.GetConnectionString("MySqlConnection");
+            services.AddDbContext<BaseContext>(options => options.UseMySql(connection));
+            #endregion
+
             #region IdentityServer配置
             services
                 .AddIdentityServer()

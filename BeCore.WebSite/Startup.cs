@@ -42,11 +42,31 @@ namespace BeCore.WebSite
             var connection = Configuration.GetConnectionString("MySqlConnection");
             services.AddDbContext<BaseContext>(options => options.UseMySql(connection));
             var baseType = typeof(IRepository<Core.Base.EntityBase>);
+            #region autofac注入之前加载类文件
             var assembly = Assembly.GetEntryAssembly();
             AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName("BaseCore.Infrastructure"));
             AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName("BeCore.Core"));
+            #endregion
 
+            #region 配载单点登录
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";//使用Cookies认证
+                options.DefaultChallengeScheme = "oidc";//使用oidc
+            }).AddCookie("Cookies")//配置Cookies认证
+            .AddOpenIdConnect("oidc", options =>
+            {//配置oidc
+                options.SignInScheme = "Cookies";
+                options.Authority = "http://localhost:5000";
+                options.RequireHttpsMetadata = false;
 
+                options.ClientId = "mvc";
+                options.ClientSecret = "secret";
+                options.SaveTokens = true;
+            });
+            #endregion
+
+            #region 微软自带的注入
             //services.AddScoped<IBussCodeInfoRepository, BussCodeInfoRepository>();
             //services.AddScoped<IBussCodeRepository, BussCodeRepository>();
             //services.AddScoped<ISys_UsersRepository, Sys_UsersCodeRepository>();
@@ -59,6 +79,7 @@ namespace BeCore.WebSite
             //IContainer container = builder.Build();
             //var jsonServices = JObject.Parse(File.ReadAllText("appSettings.json"))["DiConfig"];
             //var ModuleList = JsonConvert.DeserializeObject<List<AutofacModule>>(jsonServices.ToString());
+            #endregion
 
             services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
             var builder = new ContainerBuilder();//实例化 AutoFac  容器    
@@ -72,6 +93,7 @@ namespace BeCore.WebSite
             builder.Populate(services); ;//管道寄居
 
             //builder.Populate(services)
+
 
             #region autofac 配置文件注入 2019-1-15 废除
             //builder.RegisterAssemblyModules(Assembly.GetExecutingAssembly());
