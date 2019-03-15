@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -48,23 +49,6 @@ namespace BeCore.WebSite
             AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName("BeCore.Core"));
             #endregion
 
-            #region 配载单点登录
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = "Cookies";//使用Cookies认证
-                options.DefaultChallengeScheme = "oidc";//使用oidc
-            }).AddCookie("Cookies")//配置Cookies认证
-            .AddOpenIdConnect("oidc", options =>
-            {//配置oidc
-                options.SignInScheme = "Cookies";
-                options.Authority = "http://localhost:5000";
-                options.RequireHttpsMetadata = false;
-
-                options.ClientId = "mvc";
-                options.ClientSecret = "secret";
-                options.SaveTokens = true;
-            });
-            #endregion
 
             #region 微软自带的注入
             //services.AddScoped<IBussCodeInfoRepository, BussCodeInfoRepository>();
@@ -81,7 +65,30 @@ namespace BeCore.WebSite
             //var ModuleList = JsonConvert.DeserializeObject<List<AutofacModule>>(jsonServices.ToString());
             #endregion
 
-            services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
+            services
+                .AddMvc()
+                .AddJsonOptions(options => { options.SerializerSettings.ContractResolver = new DefaultContractResolver(); });
+
+            #region 配载单点登录
+            //JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";//使用Cookies认证
+                options.DefaultChallengeScheme = "oidc";//使用oidc
+            })
+            .AddCookie("Cookies")//配置Cookies认证
+            .AddOpenIdConnect("oidc", options =>
+            {//配置oidc
+                options.SignInScheme = "Cookies";
+                options.Authority = "http://localhost:5000";
+                options.RequireHttpsMetadata = false;
+
+                options.ClientId = "mvc";
+                options.ClientSecret = "secret";
+                options.SaveTokens = true;
+            });
+            #endregion
+
             var builder = new ContainerBuilder();//实例化 AutoFac  容器    
 
             IConfigurationBuilder config = new ConfigurationBuilder();
@@ -129,16 +136,17 @@ namespace BeCore.WebSite
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseBrowserLink();
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            //if (env.IsDevelopment())
+            //{
+            app.UseBrowserLink();
+            app.UseDeveloperExceptionPage();
+            //}
+            //    else
+            //    {
+            //        app.UseExceptionHandler("/Home/Error");
+            //    }
 
+            app.UseAuthentication();
             app.UseStaticFiles();
 
             app.UseMvc(routes =>

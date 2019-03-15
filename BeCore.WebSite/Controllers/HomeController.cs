@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using BeCore.WebSite.Models;
 using BeCore.Core.Interfaces;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+
 namespace BeCore.WebSite.Controllers
 {
     public class HomeController : Controller

@@ -6,6 +6,7 @@ using BaseCore.Infrastructure.Data;
 using BaseCore.Infrastructure.Repositories;
 using BeCore.Core.Interfaces;
 using BeCore.IdentityServer.Configuration;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -33,14 +34,25 @@ namespace BeCore.IdentityServer
             #endregion
 
             #region IdentityServer配置
-            services
-                .AddIdentityServer()
-                ////如果是production farm使用AddSigningCredential()这个方法.  AddDeveloperSigningCredential 这个方法单纯是为了 让我们的token 保存在硬盘当中。
-                .AddDeveloperSigningCredential()//这里是指的使用开发单例
-                .AddInMemoryIdentityResources(OuathSetting.GetIdentityResources)//可以对外传出的参数
-                .AddTestUsers(OuathSetting.Users.ToList())//可以访问的测试用户  待会需要删掉 调用数据库权限
-                .AddInMemoryClients(OuathSetting.Clients)//可以访问的客户端
-                .AddInMemoryApiResources(OuathSetting.ApiResources);
+            services.AddIdentityServer()
+                .AddDeveloperSigningCredential()//添加开发人员签名凭据
+                .AddInMemoryApiResources(Config.GetApiResources())//添加内存apiresource
+                .AddInMemoryClients(Config.GetClients())//添加内存client
+                .AddInMemoryIdentityResources(Config.GetIdentityResources())//添加系统中的资源
+                .AddResourceOwnerValidator<ByPasswordValidator>();
+            //.AddScoped<IProfileService, ProfileService>();
+            services.AddTransient<IProfileService, ProfileService>();
+            //Services.AddTransient<IProfileService, ProfileService>();
+            //.AddTestUsers(Config.GetTestUsers());//添加测试用户
+
+            //services
+            //    .AddIdentityServer()
+            //    ////如果是production farm使用AddSigningCredential()这个方法.  AddDeveloperSigningCredential 这个方法单纯是为了 让我们的token 保存在硬盘当中。
+            //    .AddDeveloperSigningCredential()//这里是指的使用开发单例
+            //    .AddInMemoryIdentityResources(OuathSetting.GetIdentityResources)//可以对外传出的参数
+            //    .AddTestUsers(OuathSetting.Users.ToList())//可以访问的测试用户  待会需要删掉 调用数据库权限
+            //    .AddInMemoryClients(OuathSetting.Clients)//可以访问的客户端
+            //    .AddInMemoryApiResources(OuathSetting.ApiResources);
             //.AddProfileService<CustomProfileService>()
             //.AddResourceOwnerValidator<CustomResourceOwnerPasswordValidator>()
             #endregion
@@ -71,18 +83,17 @@ namespace BeCore.IdentityServer
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseBrowserLink();
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-
-            app.UseStaticFiles();
+            //if (env.IsDevelopment())
+            //{
+            app.UseBrowserLink();
+            app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Home/Error");
+            //}
             app.UseIdentityServer();
+            app.UseStaticFiles();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

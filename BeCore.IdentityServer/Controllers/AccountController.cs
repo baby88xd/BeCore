@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using BeCore.Core;
 using BeCore.Core.Interfaces;
+using IdentityServer4.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +19,13 @@ namespace BeCore.IdentityServer.Controllers
     public class AccountController : Controller
     {
         private ISys_UsersRepository sys_Users { get; set; }
+        //private readonly TestUserStore _users;
         public AccountController(ISys_UsersRepository _sys_Users)
         {
+            //_users = users;
             sys_Users = _sys_Users;
         }
+
         // GET: /<controller>/
         public IActionResult Index()
         {
@@ -91,9 +96,10 @@ namespace BeCore.IdentityServer.Controllers
             if (ModelState.IsValid)
             {
                 ViewData["returnUrl"] = returnUrl;
+                //var user = _users.FindByUsername(loginViewModel.UserName);
                 string userName = loginViewModel.UserName;
                 //查找当前用户是否存在
-                var user = sys_Users.List(z => !z.Deleted && z.UserName == userName).FirstOrDefault();//_users.FindByUsername(loginViewModel.UserName);
+                var user = sys_Users.List(z => !z.Deleted && z.UserName == userName).FirstOrDefault();//
 
                 if (user == null)
                 {
@@ -101,6 +107,9 @@ namespace BeCore.IdentityServer.Controllers
                 }
                 else
                 {
+                    //这段代码是test User的 暂时先不用了
+                    //if (_users.ValidateCredentials(loginViewModel.UserName, loginViewModel.Password)) 
+
                     if (user.UserName == loginViewModel.UserName && loginViewModel.Password.Md5Random(user.PassSalt) == user.Password)
                     {
                         //是否记住
@@ -111,6 +120,7 @@ namespace BeCore.IdentityServer.Controllers
                         };
 
                         await Microsoft.AspNetCore.Http.AuthenticationManagerExtensions.SignInAsync(HttpContext, user.Id.ToString(), user.UserName, prop);
+                        //await Microsoft.AspNetCore.Http.AuthenticationManagerExtensions.SignInAsync(HttpContext, testUser.SubjectId, testUser.Username, prop);
                     }
                 }
 

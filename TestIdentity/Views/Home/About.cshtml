@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "About";
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+<dl>
+    <dd>@User.Identity.Name</dd>
+    @*<dd>@User.Identities.get</dd>*@
+    @*@User.*@
+</dl>
+<dl>
+    <table>
+        <tbody>
+            <tr>
+                @*<th>claim</th>*@
+                <th>Type</th>
+                <th>Value</th>
+
+            </tr>
+        </tbody>
+        @foreach (var claim in User.Claims)
+        {
+            <tr>
+                @*<td>@claim.ToString()</td>*@
+                <td>@claim.Type</td>
+                <td>@claim.Value</td>
+            </tr>
+        }
+    </table>
+</dl>

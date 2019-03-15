@@ -39,12 +39,27 @@ namespace BeCore.IdentityServer.Configuration
             {
                 return new[]
                 {
+                           new Client{
+                    ClientId="mvc",
+                    AllowedGrantTypes=GrantTypes.Implicit,//模式：隐式模式
+                    ClientSecrets={//私钥
+                        new Secret("secret".Sha256())
+                    },
+                    AllowedScopes={//运行访问的资源
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.OpenId,
+                    },
+                    RedirectUris={"http://localhost:5001/signin-oidc"},//跳转登录到的客户端的地址
+                    PostLogoutRedirectUris={"http://localhost:5001/signout-callback-oidc"},//跳转登出到的客户端的地址
+                    RequireConsent=false//是否需要用户点击确认进行跳转
+                },
+
                 new Client
                 {
                     ClientId = "socialnetwork",
-                    ClientSecrets = new [] { new Secret("secret".Sha256()) },
+                    ClientSecrets = new[] { new Secret("secret".Sha256()) },
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
-                    AllowedScopes = new [] { "socialnetwork" }
+                    AllowedScopes = new[] { "socialnetwork" }
                 },
                 new Client
                 {
@@ -60,7 +75,7 @@ namespace BeCore.IdentityServer.Configuration
                          "socialnetwork"
                     },
                     AllowAccessTokensViaBrowser = true //修改Authorization Server的Client来允许返回Access Token
-                   
+
                 },
                 new Client
                 {
@@ -93,7 +108,7 @@ namespace BeCore.IdentityServer.Configuration
                     PostLogoutRedirectUris = { "http://localhost:5002/signout-callback-oidc" },
                     //RedirectUris =           { "http://localhost:5003/callback.html" },
                     //PostLogoutRedirectUris = { "http://localhost:5003/index.html" },
-                    AllowedCorsOrigins =     { "http://localhost:5003" },
+                    AllowedCorsOrigins = { "http://localhost:5003" },
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -133,10 +148,7 @@ namespace BeCore.IdentityServer.Configuration
                 {
                 new TestUser
                 {
-                    SubjectId = "1",
-                    Username = "mail@qq.com",
-                    Password = "password",
-                    Claims = new [] { new Claim("email", "mail@qq.com") }
+
                 }
             };
             }
